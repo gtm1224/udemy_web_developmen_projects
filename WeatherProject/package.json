@@ -9,6 +9,7 @@
   "author": "Tim Guo",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.2",
     "express": "^4.17.3"
   }
 }
