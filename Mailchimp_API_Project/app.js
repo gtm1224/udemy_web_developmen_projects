@@ -1,3 +1,5 @@
+// please see my deployed version at: https://morning-beyond-45359.herokuapp.com/
+// API key will not show in this file
 const express = require("express");
 const bodyParser = require("body-parser");
 const request = require("request");
@@ -34,7 +36,7 @@ app.post("/",function(req,res){
 
     const options={
         method: "POST",
-        auth:"APIproject:fa9a5e81c266ac8eded9c5b2f44142e7-us14"
+        auth:"APIproject:API key will not show here"
     }
     const request = https.request(url,options,function(response){
         
@@ -63,5 +65,3 @@ app.listen(process.env.PORT || 3000,function(){
     console.log("Server is running on port 3000. ")
 });
 
-//api: fa9a5e81c266ac8eded9c5b2f44142e7-us14
-// listid:eb38ca41d5
