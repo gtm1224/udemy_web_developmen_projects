@@ -1,7 +1,7 @@
 // set up
 const express = require("express");
 const bodyParser = require("body-parser");
-const date = require(__dirname+"/date.js");
+// const date = require(__dirname+"/date.js");
 const mongoose = require("mongoose");
 const app =express();
 
@@ -62,7 +62,7 @@ app.get("/",function(req,res){
             });
             res.redirect("/");
         }else{
-            res.render("list",{listTitle:date.getDate(),newListItem: foundItems});
+            res.render("list",{listTitle:"Today",newListItem: foundItems});
         }        
     });
     
@@ -85,25 +85,49 @@ app.get("/",function(req,res){
 
 // ignore work for now
 app.post("/",function(req,res){
-    // console.log(req.body);
+    console.log(req.body);
+    const listName = req.body.list;
     const newItem = new Item({
         name:req.body.newItem
-    })
-    newItem.save();
-    res.redirect("/");
+    });
+    if(listName==="Today"){
+        newItem.save();
+        res.redirect("/");
+    }else{
+        List.findOne({name:listName},function(err,foundList){
+            foundList.items.push(newItem);
+            foundList.save();
+            res.redirect("/"+listName);
+        });
+    }
+    
 });
 
 
 app.post("/delete",function(req,res){
     // console.log(req.body);
-    Item.findByIdAndRemove(req.body.checkbox,err=>{
-        if(!err){
-            console.log("succefully deleted the item based on ID");
-        }else{
-            console.log(err);
-        }
-        res.redirect("/");
-    });
+    const listName = req.body.listName;
+    const checkedItemId = req.body.checkbox
+    if(listName==="Today"){
+        Item.findByIdAndRemove(checkedItemId,err=>{
+            if(!err){
+                console.log("succefully deleted the item based on ID");
+            }else{
+                console.log(err);
+            }
+            res.redirect("/");
+        });
+    }else{
+        List.findOneAndUpdate({name: listName}, {$pull: {items: {_id: checkedItemId}}}, function(err, foundList){
+            if (!err){
+              res.redirect("/" + listName);
+            }
+          });
+    }
+
+
+
+    
     
 });
 
@@ -127,16 +151,6 @@ app.get("/:newPageName",function(req,res){
     });
     
 });
-
-
-
-
-
-
-
-
-
-
 
 
 
