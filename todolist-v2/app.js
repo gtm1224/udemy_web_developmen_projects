@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 // const date = require(__dirname+"/date.js");
 const mongoose = require("mongoose");
+const _ = require("lodash");
 const app =express();
 
 
@@ -132,7 +133,7 @@ app.post("/delete",function(req,res){
 });
 
 app.get("/:newPageName",function(req,res){
-    const newPageName = req.params.newPageName;
+    const newPageName = _.capitalize(req.params.newPageName);
     List.findOne({name: newPageName},function(err,foundList){
         if(!err){
             if(!foundList){
