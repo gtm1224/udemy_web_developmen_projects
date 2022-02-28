@@ -37,8 +37,14 @@ const item3 = new Item({
 });
 
 const defaultItems = [item1,item2,item3];
-// insert many to the database
 
+// init a new list schema for each custom page
+const listSchema = {
+    name:String,
+    items:[itemsSchema]
+}
+
+const List = mongoose.model("List",listSchema);
 
 
 //get method:
@@ -46,6 +52,7 @@ app.get("/",function(req,res){
     // find item in our database
     Item.find({},function(err,foundItems){
         if(foundItems.length===0){
+            // insert many to the database
             Item.insertMany(defaultItems,function(err){
                 if(err){
                     console.log(err);
@@ -100,7 +107,40 @@ app.post("/delete",function(req,res){
     
 });
 
+app.get("/:newPageName",function(req,res){
+    const newPageName = req.params.newPageName;
+    List.findOne({name: newPageName},function(err,foundList){
+        if(!err){
+            if(!foundList){
+                //create a new list
+                const list = new List({
+                    name: newPageName,
+                    items:defaultItems
+                });
+                list.save();
+                res.redirect("/"+newPageName);
+            }else{
+                //show an existing list
+                res.render("list",{listTitle:foundList.name,newListItem:foundList.items});
+            }
+        }
+    });
+    
+});
 
+
+
+
+
+
+
+
+
+
+
+
+
+// Below is the old work route:
 // app.get("/work",function(req,res){
 //     res.render("list",{listTitle:"Work",newListItem: workItems});
 // });
@@ -108,8 +148,6 @@ app.post("/delete",function(req,res){
 // app.post("/work",function(req,res){
 //     res.redirect("/work");
 // });
-
-
 
 app.listen(3000,function(){
     console.log("Server started on port 3000");
