@@ -5,7 +5,10 @@ const ejs = require("ejs");
 const bodyParser=require("body-parser");
 const mongoose = require("mongoose");
 const encrypt = require("mongoose-encryption");
-
+const md5 = require("md5");
+const bcrypt = require('bcrypt');
+const { hash } = require('bcrypt');
+const saltRound = 10;
 
 app.use(express.static("public"));
 app.set('view engine','ejs');
@@ -42,17 +45,27 @@ app.get("/register",function(req,res){
 
 
 app.post("/register",function(req,res){
-    const newUser = new User({
-        email:req.body.username,
-        password:req.body.password
-    });
-    newUser.save(function(err){
-        if(err){
-            console.log(err);
+    
+    bcrypt.hash(req.body.password,saltRound,function(err,hash){
+        if(!err){
+            const newUser = new User({
+                email:req.body.username,
+                password: hash
+            });
+            newUser.save(function(err){
+                if(err){
+                    console.log(err);
+                }else{
+                    res.render("secrets");
+                }
+            });
         }else{
-            res.render("secrets");
+            console.log(err);
         }
+        
     });
+    
+    
 });
 
 app.post("/login",function(req,res){
@@ -63,9 +76,13 @@ app.post("/login",function(req,res){
             console.log(err);
         }else{
             if(foundUser){
-                if(foundUser.password === password){
-                    res.render("Secrets");
-                }
+                bcrypt.compare(password,foundUser.password,function(err,result){
+                        if(result){
+                            res.render("secrets");
+                        }else{
+                            console.log(err);
+                        }
+                });
             }
         }
     });
